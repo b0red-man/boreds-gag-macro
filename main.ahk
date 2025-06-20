@@ -403,7 +403,7 @@ wrench_set() {
 sleep(t) {
     x := read("speed")
     sleepMult := 0.00009894867*x*x + 0.005157699*x + 0.494743352 ; holy equation
-    Sleep, % t*sleepMult
+    Sleep, % t/sleepMult
 }
 drag(x1,y1,x2,y2) {
     MouseMove, % x1, % y1
