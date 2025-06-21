@@ -815,7 +815,7 @@ autoalign:
     Msgbox % "Even with auto-align, the camera still needs to be in the general direct of the seed shop, though can be less precise`nThis feature might not work during certain weather events."
     goto, save
 Return
-mainGuiClose:
+GuiClose:
     save()
     ExitApp
 Return
