@@ -1,13 +1,13 @@
-﻿; Free and open source, forever (unlike you, Virage)
+; Free and open source, forever (unlike you, Virage)
 #Include, %A_ScriptDir%\lib\gdip.ahk
 #Requires Autohotkey v1.1
 #SingleInstance, force
 CoordMode, Mouse, Client
-global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple"]
-global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","LightningRod","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
+global seeds := ["Carrot","Strawberry","Blueberry","Tomato","Cauliflower","Watermelon","GreenApple","Avocado","Banana","Pineapple","Kiwi","BellPepper","PricklyPear","Loquat","Feijoa","SugarApple"]
+global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
 global honeys := ["FlowerPack","Lavender","Nectarshade","Nectarine","HiveFruit","PollenRadar","NectarStaff","HoneySprinkler","BeeEgg","BeeCrate","HoneyComb","BeeChair","HoneyTorch","HoneyWalkway"]
-global eggs := ["Common","Uncommon","Rare","Legendary","Mythical","Bug"]
-global egg_colors := [0xFFFFFF,0xd3a781,0x2154B9,0xa3782d,0xffcc00,0xd5ff86]
+global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bug"]
+global egg_colors := [0xFFFFFF,0xFFFF00,0xAAFFFF,0xffcc00,0xffcd32,0xd5ff86]
 global configPath := A_ScriptDir "\lib\config.ini"
 global ssPath := A_ScriptDir . "\lib\ss.jpg"
 global loops_ran := 0
@@ -96,22 +96,6 @@ ui() {
             gui add, checkbox, y125 x174 vautoalign gautoalign, % "Auto-Align"
             gui add, text, x174 y142, % "UI Nav Key:"
             Gui add, Edit, y140 h18 w15 x235 vNavKey gsave
-    /*
-    gui tab, Honey
-    Gui Add, Checkbox, x16 y32 vHoneyEnable, % "Enable"
-    for i,j in honeys {
-        y := (i*seperation) + offset
-        switch {
-            case i<=8:x:=16
-            case i<=16:{
-                x:=128
-                y-=(seperation*8)
-            }
-        }
-        id := j . "checkbox"
-        Gui, Add,Checkbox, y%y% x%x% v%id%, % j
-    }
-        */
     Gui, show
     load()
 }
@@ -293,44 +277,6 @@ load() {
     }
     GuiControl,, speedslider, % read("speed")
     GuiControl,, speededit, % read("speed")
-}
-goto_honey() {
-    WinActivate, Roblox
-    wingetpos,x,y,w,h,Roblox
-    nav_seed()
-    MouseMove, % ((w*0.2)), % ((h*0.3))
-    Sleep(20)
-    Click
-    send, % read("NavKey")
-    sleep(15)
-    walk("d",400)
-    sleep(15)
-    Loop, 70 {
-        Send, {WheelUp}
-    }
-    Loop, 10 {
-        Send, {WheelDown}
-        Sleep(50)
-    }
-    ;walk("a",125
-    walk("s",2000)
-    sleep(50)
-    walk("d",800)
-    Sleep(50)
-    walk("s",7350)
-    sleep(50)
-    walk("a",700)
-    sleep(50)
-    Send, e
-    Loop, 5 {
-        Send, {WheelUp}
-        Sleep(50)
-    }
-    Sleep, 2000
-    WinGetPos,,, w, h, Roblox
-    MouseMove, % ((w*0.65)), % ((h*0.6)), 12
-    Sleep(20)
-    Click
 }
 goto_gear() {
     WinActivate, Roblox
@@ -514,39 +460,41 @@ walk(key, time) {
     Sleep, % Time
     sendKey(key, "Up")
 }
-sTut()
 ui()
+sTut()
 read(key) {
     IniRead, val, % configPath, Main, % key
     return val
 }
 scan() {
-    plants_to_buy := []
-    for i,v in seeds {
-        if (get_plant_val(v)) {
-            plants_to_buy.Push(i)
+    if(read("SeedEnable")) {
+        plants_to_buy := []
+        for i,v in seeds {
+            if (get_plant_val(v)) {
+                plants_to_buy.Push(i)
+            }
         }
-    }
-    nav_seed()
-    Sleep(100)
-    send, e
-    Sleep(2500)
-    nav_send("SSESSEEWWWAAA")
-    sleep(15)
-    buy_plant(plants_to_buy)
-    Sleep(15)
-    Loop, 30 { ; closing seed window
+        nav_seed()
+        Sleep(100)
+        send, e
+        Sleep(2500)
+        nav_send("SSESSEEWWWAAA")
+        sleep(15)
+        buy_plant(plants_to_buy)
+        Sleep(15)
+        Loop, 30 { ; closing seed window
+            send, w
+            sleep(15)
+        }
+        Loop, 2 {
+            send, s
+            sleep(15)
+        }
         send, w
         sleep(15)
+        send, {Enter}
+        send, % read("NavKey")
     }
-    Loop, 2 {
-        send, s
-        sleep(15)
-    }
-    send, w
-    sleep(15)
-    send, {Enter}
-    send, % read("NavKey")
 }
 scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
     WinGetPos,,, w, h, Roblox
@@ -597,7 +545,7 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
                 sleep(15)
             }
         }
-        walk("d",800)
+        walk("a",500)
         if (read("CosEnable") && (Mod(SubStr(A_NowUTC,9,2),4) == 0))  {
             sleep(15)
             send, e
@@ -605,8 +553,8 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
             nav_reset()
             nav_send("SSSAEEEDDEEEDDEEESEEEEEDEEEEEAAEEEEEAEEEEEAEEEEEAEEEEE") ; decided to add this mid-dev process, hopefully convert all other functions to this format
         }
-        if (read("EggEnable") && Mod(getUnixTime(), 1800) <= 300) {
-            walk("d",1000)
+        if (read("EggEnable")) { ;  && Mod(getUnixTime(), 1800) <= 300
+            walk("d",1400)
             eggs_to_buy := {}
             for _,v in eggs {
                 if(read(v)) {
@@ -630,42 +578,6 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
             }
         }
     }
-}
-scan3() { ; scans queeen bee stock
-    ; goto_honey()
-    sleep(2000)
-    plants_to_buy := []
-    for i,v in honeys {
-        if (read(v)) {
-            plants_to_buy.Push(v)
-        }
-    }
-    ;send, % read("NavKey")
-    sleep(15)
-    nav_send("SSSSSSSWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW")
-    nav_send("SSSSE")
-    sleep(500)
-    nav_send("WEEWWAA")
-    Loop, 20 {
-        Send, w
-        sleep(200)
-    }
-    for i,v in plants_to_buy {
-        amount := i!=1 ? plants_to_buy[i]-plants_to_buy[i-1] : plants_to_buy[i] + 2
-        if (v == "Lavendar"||v == "BeeCrate"||v=="HoneyComb")
-            amount+=1
-        Loop, % amount {
-            send, s
-            sleep(50)
-        }
-        if (v == "FlowerPack"||v == "BeeEgg"||v=="BeeCrate") {
-            nav_send("ESSEEEEEEEEEEEEEEEEEEEWE")
-        } else {
-            nav_send("ESEEEEEEEEEEEEEEEEEEEWE")
-        }
-    }
-    nav_send("SSSSSSSSWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDDSE")
-    send, % read("NavKey")
 }
 is_in_arr(needle,haystack) {
     for _,v in haystack {
@@ -771,26 +683,6 @@ start() {
     }
     mainLoop()
 }
-/*
-save()
-f1::sendScreenshots()
-f2::wrench_set() 
-f3::scan2()
-f4::
-    msgbox % substr(A_NowUTC,11,2) . "    " . A_NowUTC ; minute
-f5::test()
-f6::mainLoop()
-f7::Msgbox % get_egg_type()
-f8::align()
-f9::
-    wingetpos,x,y,w,h,Roblox
-    drag((w*0.2),(h*0.4),(w*0.2)+1,(h*0.4))
-f10::goto_gear()
-f11::goto_honey()
-f12::scan3()
-return
-esc::exitapp
-*/
 f6::
     Reload
     webhookPost({embedContent: "Macro Stopped"})
