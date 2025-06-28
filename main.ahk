@@ -3,7 +3,7 @@
 #Requires Autohotkey v1.1
 #SingleInstance, force
 CoordMode, Mouse, Client
-global seeds := ["Carrot","Strawberry","Blueberry","Tomato","Cauliflower","Watermelon","GreenApple","Avocado","Banana","Pineapple","Kiwi","BellPepper","PricklyPear","Loquat","Feijoa","SugarApple"]
+global seeds := ["Carrot","Strawberry","Blueberry","Tomato","Cauliflower","Watermelon","Rafflesia","GreenApple","Avocado","Banana","Pineapple","Kiwi","BellPepper","PricklyPear","Loquat","Feijoa","PitcherPlant","SugarApple"]
 global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
 global honeys := ["FlowerPack","Lavender","Nectarshade","Nectarine","HiveFruit","PollenRadar","NectarStaff","HoneySprinkler","BeeEgg","BeeCrate","HoneyComb","BeeChair","HoneyTorch","HoneyWalkway"]
 global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bug"]
@@ -297,7 +297,7 @@ goto_gear() {
 
 nav_reset() {
     Loop, 3 {
-        send, % read("NavKey")
+        sendraw, % read("NavKey")
         sleep(15)
     }
 }
@@ -344,7 +344,7 @@ wrench_set() {
     sleep(15)
     send, ``
     sleep(15)
-    send, % read("NavKey")
+    sendraw, % read("NavKey")
 }
 sleep(t) {
     x := read("speed")
@@ -414,7 +414,7 @@ sendScreenshots() {
             Gdip_SaveBitmapToFile(pB, ssPath)
             webhookPost({files:[ssPath],embedImage:"attachment://ss.jpg",embedTitle: "Pet/Egg Inventory"})
         }
-        send, % read("NavKey")
+        sendraw, % read("NavKey")
         sleep(30)
         send, ``
     }
@@ -463,7 +463,7 @@ walk(key, time) {
 ui()
 sTut()
 read(key) {
-    IniRead, val, % configPath, Main, % key
+    IniRead, val, % configPath, Main, % key, 0
     return val
 }
 scan() {
@@ -493,7 +493,7 @@ scan() {
         send, w
         sleep(15)
         send, {Enter}
-        send, % read("NavKey")
+        sendraw, % read("NavKey")
     }
 }
 scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
@@ -509,7 +509,7 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
                 sleep(15)
             }
             Sleep(1750)
-            MouseMove, (w*0.65), (h*0.45)
+            MouseMove, (w*0.75), (h*0.45)
             Sleep(15)
             Click
             sleep(2500)
@@ -522,7 +522,7 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
             sleep(15)
             nav_reset()
             sleep(15)
-            send, % read("NavKey")
+            sendraw, % read("NavKey")
             sleep(15)
             nav_send("SSESSEEWWWAAA")
             sleep(15)
@@ -539,7 +539,7 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
             send, w
             sleep(15)
             send, {Enter}
-            send, % read("NavKey")
+            sendraw, % read("NavKey")
             Loop, 6 {
                 send, {WheelDown}
                 sleep(15)
@@ -568,11 +568,11 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
                 if (is_in_arr(egg,eggs_to_buy)) {
                     nav_reset()
                     nav_send("DDDDSE")
-                    send, % read("NavKey")
+                    sendraw, % read("NavKey")
                 }
                 nav_reset()
                 nav_send("DDDDDSE")
-                send, % read("NavKey")
+                sendraw, % read("NavKey")
                 sleep(15)
                 walk("d",200)
             }
@@ -598,15 +598,6 @@ reset_tilt() {
         Send, {WheelDown}
         sleep(20)
     }
-}
-test() {
-    WinGetPos,x,y,w,h,Roblox
-    ; txt := ocrFromScreen(w*0.40,h*0.6,w*0.16,h*0.08)
-    ;txt2 := ocrscreen2(w*0.4,h*0.6,w*0.16,h*0.08)
-    ;msgbox % txt
-    ;msgbox % txt2
-    pB:=Gdip_BitmapFromScreen(x+w*0.42 . "|" . y+h*0.3 . "|" w*0.16 . "|" . h*0.08)
-    Gdip_SaveBitmapToFile(pB, A_ScriptDir . "\ss.jpg")
 }
 mainLoop() {
     Loop, {
@@ -640,7 +631,7 @@ align() { ; 089AD1
     nav_seed()
     sleep(15)
     ;reset_tilt()
-    send, % read("NavKey")
+    sendraw, % read("NavKey")
     threshold := 5
     Loop, 20 {
         Send, {WheelUp}
@@ -672,12 +663,9 @@ align() { ; 089AD1
     }
 }
 start() {
-    Gui, Submit, NoHide
-    ; save()
     webhookPost({embedContent: "Macro Started"})
     WinActivate, Roblox
     reset_tilt()
-    ;wrench_set()
     if (read("autoalign")) {
         align()
     }
@@ -730,4 +718,3 @@ return
 stop:
     webhookPost({embedContent: "Macro Stopped"})
     Reload
-Return
