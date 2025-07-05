@@ -3,9 +3,8 @@
 #Requires Autohotkey v1.1
 #SingleInstance, force
 CoordMode, Mouse, Client
-global seeds := ["Carrot","Strawberry","Blueberry","Tomato","Cauliflower","Watermelon","Rafflesia","GreenApple","Avocado","Banana","Pineapple","Kiwi","BellPepper","PricklyPear","Loquat","Feijoa","PitcherPlant","SugarApple"]
+global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple","BurningBud"]
 global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
-global honeys := ["FlowerPack","Lavender","Nectarshade","Nectarine","HiveFruit","PollenRadar","NectarStaff","HoneySprinkler","BeeEgg","BeeCrate","HoneyComb","BeeChair","HoneyTorch","HoneyWalkway"]
 global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bug"]
 global egg_colors := [0xFFFFFF,0xFFFF00,0xAAFFFF,0xffcc00,0xffcd32,0xd5ff86]
 global configPath := A_ScriptDir "\lib\config.ini"
