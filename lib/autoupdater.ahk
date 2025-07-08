@@ -9,7 +9,6 @@ downloadMain() {
         MsgBox,16,, % "An error occurred while updating the macro, please try again later."
     }
 }
-downloadMain()
 FileRead, curVerFile, % A_ScriptDir . "\vers.txt"
 curver := StrSplit(curVerFile, "::")[1]
 UrlDownloadToFile, % "https://raw.githubusercontent.com/b0red-man/boreds-gag-macro/refs/heads/main/lib/vers.txt", % A_Temp . "\gitver.txt"
