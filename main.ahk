@@ -15,7 +15,7 @@ checkForUpdates() {
     FileRead, oldVer, % A_ScriptDir . "\lib\vers.txt"
     try {
         UrlDownloadToFile, % "https://raw.githubusercontent.com/b0red-man/boreds-gag-macro/refs/heads/main/lib/autoupdater.ahk", % A_ScriptDir . "\lib\autoupdater.ahk"
-        Run, % A_ScriptDir . "\lib\autoupdater.ahk"
+        RunWait, % A_ScriptDir . "\lib\autoupdater.ahk"
     }
     FileRead, newVer, % A_ScriptDir . "\lib\vers.txt"
     if (oldVer != newVer) {
