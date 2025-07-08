@@ -11,6 +11,17 @@ global configPath := A_ScriptDir "\lib\config.ini"
 global ssPath := A_ScriptDir . "\lib\ss.jpg"
 global loops_ran := 0
 global startTime := getUnixTime()
+checkForUpdates() {
+    FileRead, oldVer, % A_ScriptDir . "\lib\vers.txt"
+    try {
+        UrlDownloadToFile, % "https://raw.githubusercontent.com/b0red-man/boreds-gag-macro/refs/heads/main/lib/autoupdater.ahk", % A_ScriptDir . "\lib\autoupdater.ahk"
+        Run, % A_ScriptDir . "\lib\autoupdater.ahk"
+    }
+    FileRead, newVer, % A_ScriptDir . "\lib\vers.txt"
+    if (oldVer != newVer) {
+        Reload
+    }
+}
 gdip_startup()
 ui() {
     global
@@ -461,6 +472,7 @@ walk(key, time) {
 }
 ui()
 sTut()
+checkForUpdates()
 read(key) {
     IniRead, val, % configPath, Main, % key, 0
     return val
