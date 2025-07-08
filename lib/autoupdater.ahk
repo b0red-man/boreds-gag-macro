@@ -16,7 +16,7 @@ UrlDownloadToFile, % "https://raw.githubusercontent.com/b0red-man/boreds-gag-mac
 FileRead, newVerFile, % A_Temp . "\gitver.txt"
 FileDelete, % A_Temp . "\gitver.txt"
 newArr := StrSplit(newVerFile, "::")
-if (newArr[1] >= curver) {
+if (newArr[1] > curver) {
     MsgBox, 68,, % "An update is avaliable, would you like the macro to automatically install it?`n`nChange Notes:`n" . newArr[2]
     IfMsgBox Yes
         downloadMain()
