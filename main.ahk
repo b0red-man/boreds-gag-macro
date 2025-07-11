@@ -745,6 +745,7 @@ align() { ; 089AD1
         }
         sleep(100)
     }
+	reset_tilt()
 }
 start() {
     webhookPost({embedContent: "Macro Started", embedColor: 0x80c4cf})
