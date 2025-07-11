@@ -2,6 +2,7 @@
 #Include, %A_ScriptDir%\lib\gdip.ahk
 #Requires Autohotkey v1.1
 #SingleInstance, force
+CoordMode, Pixel, Client
 CoordMode, Mouse, Client
 global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple","BurningBud"]
 global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
@@ -11,6 +12,7 @@ global configPath := A_ScriptDir "\lib\config.ini"
 global ssPath := A_ScriptDir . "\lib\ss.jpg"
 global loops_ran := 0
 global startTime := getUnixTime()
+global started := 0
 checkForUpdates() {
     FileRead, oldVer, % A_ScriptDir . "\lib\vers.txt"
     try {
@@ -33,7 +35,7 @@ ui() {
     gui font, s9
     Gui Add, Text, x175 y190, % "made by @b0red_man"
     gui font
-    Gui Add,Tab3,x5 y5 w280 h185, Seeds|Gears|Eggs|Other
+    Gui Add,Tab3,x5 y5 w280 h185, Seeds|Gears|Eggs|Other|Extra
     Gui, Tab, Seeds
     Gui Add, Checkbox, vSeedEnable gsave x16 y32, % "Enable"
     for i,j in seeds {
@@ -106,6 +108,14 @@ ui() {
             gui add, checkbox, y125 x174 vautoalign gautoalign, % "Auto-Align"
             gui add, text, x174 y142, % "UI Nav Key:"
             Gui add, Edit, y140 h18 w15 x235 vNavKey gsave
+    Gui, Tab, Extra
+    Gui Add, Checkbox, x16 y36 vUpdateEnable gsave, % "Enable auto-update"
+    gui font, w600
+    Gui Add, Groupbox, y52 x16 w130 h80, % "Reconnection"
+        gui, Font
+        gui add, checkbox, x25 y70 vRecEnable gsave, % "Enable"
+        Gui add, text, x25 y90, % "PS Link"
+        Gui Add, Edit, x25 y105 h18 w115 vPSLink gsave
     Gui, show
     load()
 }
@@ -243,7 +253,7 @@ webhookPost(data := 0){ ; from dolphsol
         }
     }
 }
-global other_settings := ["SeedEnable","GearEnable","EggEnable","CosEnable","SeedSS","GearSS","EggSS","WebhookOn","WebhookURL","NavKey","autoalign"]
+global other_settings := ["SeedEnable","GearEnable","EggEnable","CosEnable","SeedSS","GearSS","EggSS","WebhookOn","WebhookURL","NavKey","autoalign","PSLink","RecEnable"]
 save() {
     if(getUnixTime()-starttime>=5) {
         for _,i in seeds {
@@ -389,11 +399,13 @@ getUnixTime() {
     return now
 }
 sTut() {
+    global
     gui, tut:new
-    gui add, text,x8 y8, % "If you aren't using auto-align, or its broken,`nyou can use the 'Garden' button to help you align like in the image below"
-    Gui add, pic, x8 h202 w415, % A_ScriptDir . "\lib\example.jpg"
-    gui add, text,x8, % "Make sure recall wrench is in SLOT ONE before starting the macro if you are using gear,`ncosmetics, or egg auto-buy"
+    gui add, text,x8 y8, % "If you aren't using auto-align, or its broken,`nyou can use the 'Garden' button to help you align like`nin the image below"
+    Gui add, pic, x8 h135 w277, % A_ScriptDir . "\lib\example.jpg"
+    gui add, text,x8, % "Make sure recall wrench is in SLOT ONE before starting`nthe macro if you are using gear,`ncosmetics, or egg auto-buy"
     gui add, button,w60 gOKPress, % "OK"
+    gui add, checkbox, x160 y240 vTutEnable gsave, % "Dont show this again"
     gui show
 }
 sendScreenshots() {
@@ -471,8 +483,12 @@ walk(key, time) {
     sendKey(key, "Up")
 }
 ui()
-sTut()
-checkForUpdates()
+if(!read("TutEnable")) {
+    sTut()
+}
+if(read("UpdateEnable")) {
+    checkForUpdates()
+}
 read(key) {
     IniRead, val, % configPath, Main, % key, 0
     return val
@@ -609,6 +625,9 @@ reset_tilt() {
     }
 }
 mainLoop() {
+    if (read("RecEnable")) {
+        SetTimer, checkDisc, 7500
+    }
     Loop, {
         scan()
         scan2()
@@ -635,13 +654,61 @@ get_egg_type() {
     }
     return -1
 }
+checkdisconnect() { ; 0x393b3d, 0xFFFFFF
+    WinGetPos, x,y,w,h, Roblox
+    PixelSearch, x1,, % w*0.3, % h*0.3, % w*0.7, % h*0.7, 0x393b3d, 0, Fast RGB
+    PixelSearch, x2,, % w*0.3, % h*0.3, % w*0.7, % h*0.7, 0xffffff, 0, Fast RGB
+    if (x1 && x2) {
+        return True
+    }
+    return False
+}
+attemptReconnect() {
+    WinKill, Roblox
+    sleep, 250
+    WinKill, Roblox
+    Sleep, 3500
+    link := read("PSLink")
+    if(InStr(link,"share")) {
+        Run, % link
+    } else {
+        psID := SubStr(link, -31)
+        Run, % "roblox://placeID=126884695634066&linkCode=" . psID
+    }
+    sleep, 1000
+    Loop {
+        if(WinExist("Roblox")) {
+            sleep, 1000
+            WinMaximize, Roblox
+            WinActivate, Roblox
+            sleep, 500
+            Break
+        }
+    }
+    Sleep, 6000
+    WinActivate, Roblox
+    WinGetPos, x,y,w,h,Roblox
+    sleep, 500
+    Loop, 5 {
+        MouseMove, % w*0.5, % h*0.5
+        sleep, 50
+        Click
+        sleep, 500
+    }
+    Sleep, 10000
+    reset_tilt()
+    send, {Right Down}
+    sleep, 300
+    send, {Right Up}
+    align()
+}
 align() { ; 089AD1
     wingetpos,x,y,w,h,Roblox
     nav_seed()
     sleep(15)
-    ;reset_tilt()
+    reset_tilt()
     sendraw, % read("NavKey")
-    threshold := 5
+    threshold := 2
     Loop, 20 {
         Send, {WheelUp}
         sleep(15)
@@ -651,9 +718,12 @@ align() { ; 089AD1
         Send, {WheelDown}
         sleep(30)
     }
+    drag(w*0.3,h*0.3,w*0.3,h*0.3-1)
     Loop, {
-        PixelSearch,, leftY, (w*0.19), (h*0.2), (w*0.21), (h*0.5), 0x5fac4a,30, Fast RGB
-        PixelSearch,, rightY, (w*0.79), (h*0.2), (w*0.81), (h*0.5), 0x5fac4a,30, Fast RGB
+        Random, sleepTime, 0, 80
+        PixelSearch,, leftY, (w*0.19), (h*0.2), (w*0.21), (h*0.5), 0x61ad4c,20, Fast RGB
+        PixelSearch,, rightY, (w*0.79), (h*0.2), (w*0.81), (h*0.5), 0x61ad4c,20, Fast RGB
+        ToolTip, leftY: %leftY%`nrightY: %rightY%
         if (!leftY || !rightY) {
             Random, n, 1, 2
             if (n == 1) {
@@ -665,14 +735,20 @@ align() { ; 089AD1
         else if (Abs(righty-lefty)) <= threshold {
             return 0
         } else if (righty>lefty) {
-            Send, {Right}
+            Send, {Right Down}
+            sleep, % sleepTime
+            send, {Right Up}
         } else {
-            Send, {Left}
+            Send, {Left Down}
+            sleep, % sleepTime
+            Send, {Left Up}
         }
+        sleep(100)
     }
 }
 start() {
-    webhookPost({embedContent: "Macro Started"})
+    webhookPost({embedContent: "Macro Started", embedColor: 0x80c4cf})
+    global started := 1
     WinActivate, Roblox
     reset_tilt()
     if (read("autoalign")) {
@@ -681,10 +757,18 @@ start() {
     mainLoop()
 }
 f6::
-    Reload
-    webhookPost({embedContent: "Macro Stopped"})
+    if (started) {
+        Reload
+        webhookPost({embedContent: "Macro Stopped", embedColor: 0x80c4cf})
+    }
 Return
 f5::start()
+Return
+checkDisc:
+    if(checkdisconnect()) {
+        webhookPost({embedContent: "Roblox Disconnected", embedColor: 0xcc6452})
+        attemptReconnect()
+    }
 Return
 slidermove:
     GuiControlGet, val,, speedslider
@@ -725,5 +809,7 @@ start:
     start()
 return
 stop:
-    webhookPost({embedContent: "Macro Stopped"})
-    Reload
+    if (started) {
+        Reload
+        webhookPost({embedContent: "Macro Stopped", embedColor: 0x80c4cf})
+    }
