@@ -733,6 +733,7 @@ align() { ; 089AD1
             }
         }
         else if (Abs(righty-lefty)) <= threshold {
+			reset_tilt()
             return 0
         } else if (righty>lefty) {
             Send, {Right Down}
@@ -745,7 +746,6 @@ align() { ; 089AD1
         }
         sleep(100)
     }
-	reset_tilt()
 }
 start() {
     webhookPost({embedContent: "Macro Started", embedColor: 0x80c4cf})
