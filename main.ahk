@@ -4,7 +4,7 @@
 #SingleInstance, force
 CoordMode, Pixel, Client
 CoordMode, Mouse, Client
-global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple","BurningBud"]
+global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple","BurningBud","GiantPinecone"]
 global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
 global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bee","Bug"]
 global egg_colors := [0xFFFFFF,0xFFFF00,0xAAFFFF,0xffcc00,0xffcd32,0xffaa00,0xd5ff86]
