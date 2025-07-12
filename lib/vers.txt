@@ -1,1 +1,1 @@
-0::testing
+1::fixed seed shop with new seeds, will rework egg shop soon
