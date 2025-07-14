@@ -1,1 +1,1 @@
-3::egg shop fix
+4::fixed gear shop (accidently got reverted last update)
