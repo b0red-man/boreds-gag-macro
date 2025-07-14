@@ -5,9 +5,8 @@
 CoordMode, Pixel, Client
 CoordMode, Mouse, Client
 global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple","BurningBud","GiantPinecone"]
-global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","MediumToy","MediumTreat","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","CleaningSpray","FavoriteTool","HarvestTool","FriendshipPot","LevelupLollipop"]
-global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bee","Bug"]
-global egg_colors := [0xFFFFFF,0xFFFF00,0xAAFFFF,0xffcc00,0xffcd32,0xffaa00,0xd5ff86]
+global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
+global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bug"]
 global configPath := A_ScriptDir "\lib\config.ini"
 global ssPath := A_ScriptDir . "\lib\ss.jpg"
 global loops_ran := 0
@@ -380,7 +379,7 @@ drag(x1,y1,x2,y2) {
     sleep(15)
     Click, Up, Right
 }
-nav_send(oldstr) {
+nav_send(oldstr, speed := 15) {
     StringLower, str, oldstr
     Loop, % StrLen(str) {
         char := SubStr(str, A_Index, 1)
@@ -390,7 +389,7 @@ nav_send(oldstr) {
         else {
             send % char
         }
-        sleep(15)
+        sleep(speed)
     }
 }
 getUnixTime() {
@@ -579,29 +578,94 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
             nav_send("SSSAEEEDDEEEDDEEESEEEEEDEEEEEAAEEEEEAEEEEEAEEEEEAEEEEE") ; decided to add this mid-dev process, hopefully convert all other functions to this format
         }
         if (read("EggEnable")) { ;  && Mod(getUnixTime(), 1800) <= 300
-            walk("d",1400)
+            walk("d",1100)
+            sleep(50)
+            send, e
+            sleep(50)
+            sleep(2000)
+            Loop, 6 {
+                Send, {WheelUp}
+                sleep(15)
+            }
             eggs_to_buy := {}
-            for _,v in eggs {
+            for i,v in eggs {
                 if(read(v)) {
-                    eggs_to_buy.Push(v)
+                    eggs_to_buy.Push(i)
                 }
             }
-            Loop, 3 {
-                sleep(200)
-                send, e
-                egg := get_egg_type()
-                if (is_in_arr(egg,eggs_to_buy)) {
-                    nav_reset()
-                    nav_send("DDDDSE")
-                    sendraw, % read("NavKey")
+            sleep(1000)
+            mouseMove, % w*0.8, % h*0.3
+            sleep(25)
+            click
+            sleep, 2000
+            nav_reset()
+            nav_send("DDDSSSESSSEE",150)
+            nav_send("WWWWWWWWWWWWSS", 200)
+            for i,v in eggs_to_buy {
+                kAmount := i == 1 ? (v-1)*2 : (v-eggs_to_buy[i-1])*2
+                Loop, % kAmount {
+                    nav_send("S")
                 }
-                nav_reset()
-                nav_send("DDDDDSE")
-                sendraw, % read("NavKey")
+                nav_send("ESSEEEWE")
+                sleep(1000)
+            }
+            nav_send("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDDSE",100)
+            send, % read("NavKey")
+            Loop, 6 {
+                Send, {WheelDown}
                 sleep(15)
-                walk("d",200)
             }
         }
+    }
+}
+eggtest() {
+    WinGetPos, x,y,w,h,Roblox
+    /*
+    walk("a",500)
+    walk("d",1100)
+    sleep(50)
+    send, e
+    sleep(50)
+    Loop, 6 {
+        Send, {WheelUp}
+        sleep(15)
+    }
+            movement section 
+        */
+    ; buying section VV
+    eggs_to_buy := {}
+    for i,v in eggs {
+        if(read(v)) {
+            eggs_to_buy.Push(i)
+        }
+    }
+    mouseMove, % w*0.8, % h*0.325
+    sleep(25)
+    click
+    sleep, 2000
+    nav_reset()
+    nav_send("DDDSSSESSSEE",150)
+    nav_send("WWWWWWWWWWWWSS", 200)
+    for i,v in eggs_to_buy {
+        kAmount := i == 1 ? (v-1)*2 : (v-eggs_to_buy[i-1])*2
+        Loop, % kAmount {
+            nav_send("S")
+        }
+        nav_send("ESSEEEWE")
+        sleep(1000)
+    }
+    nav_send("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDDSE",100)
+    send, % read("NavKey")
+}
+eggtest2() {
+    walk("a",500)
+    walk("d",1100)
+    sleep(50)
+    send, e
+    sleep(50)
+    Loop, 6 {
+        Send, {WheelUp}
+        sleep(15)
     }
 }
 is_in_arr(needle,haystack) {
@@ -641,18 +705,6 @@ mainLoop() {
             }
         }
     }
-}
-get_egg_type() {
-    wingetpos,x,y,w,h,Roblox
-    for i,tv in egg_colors {
-        v := egg_colors[7-i]
-        PixelSearch, oX, oY, % ((w*0.42)), % ((h*0.3)), % ((w*0.42))+(w*0.16), % ((h*0.3))+h*0.08, % v, 2, Fast RGB
-        PixelGetColor, vs, 884, 348, RGB
-        if (oX || oY) {
-            return eggs[7-i]
-        }
-    }
-    return -1
 }
 checkdisconnect() { ; 0x393b3d, 0xFFFFFF
     WinGetPos, x,y,w,h, Roblox
@@ -723,7 +775,6 @@ align() { ; 089AD1
         Random, sleepTime, 0, 80
         PixelSearch,, leftY, (w*0.19), (h*0.2), (w*0.21), (h*0.5), 0x61ad4c,20, Fast RGB
         PixelSearch,, rightY, (w*0.79), (h*0.2), (w*0.81), (h*0.5), 0x61ad4c,20, Fast RGB
-        ToolTip, leftY: %leftY%`nrightY: %rightY%
         if (!leftY || !rightY) {
             Random, n, 1, 2
             if (n == 1) {
@@ -733,7 +784,7 @@ align() { ; 089AD1
             }
         }
         else if (Abs(righty-lefty)) <= threshold {
-			reset_tilt()
+            reset_tilt()
             return 0
         } else if (righty>lefty) {
             Send, {Right Down}
