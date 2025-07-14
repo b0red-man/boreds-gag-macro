@@ -618,56 +618,6 @@ scan2() { ; scans the whple gear area (eggs, cosmetics, and gear)
         }
     }
 }
-eggtest() {
-    WinGetPos, x,y,w,h,Roblox
-    /*
-    walk("a",500)
-    walk("d",1100)
-    sleep(50)
-    send, e
-    sleep(50)
-    Loop, 6 {
-        Send, {WheelUp}
-        sleep(15)
-    }
-            movement section 
-        */
-    ; buying section VV
-    eggs_to_buy := {}
-    for i,v in eggs {
-        if(read(v)) {
-            eggs_to_buy.Push(i)
-        }
-    }
-    mouseMove, % w*0.8, % h*0.325
-    sleep(25)
-    click
-    sleep, 2000
-    nav_reset()
-    nav_send("DDDSSSESSSEE",150)
-    nav_send("WWWWWWWWWWWWSS", 200)
-    for i,v in eggs_to_buy {
-        kAmount := i == 1 ? (v-1)*2 : (v-eggs_to_buy[i-1])*2
-        Loop, % kAmount {
-            nav_send("S")
-        }
-        nav_send("ESSEEEWE")
-        sleep(1000)
-    }
-    nav_send("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDDSE",100)
-    send, % read("NavKey")
-}
-eggtest2() {
-    walk("a",500)
-    walk("d",1100)
-    sleep(50)
-    send, e
-    sleep(50)
-    Loop, 6 {
-        Send, {WheelUp}
-        sleep(15)
-    }
-}
 is_in_arr(needle,haystack) {
     for _,v in haystack {
         if (v == needle) {
