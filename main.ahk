@@ -5,10 +5,11 @@
 CoordMode, Pixel, Client
 CoordMode, Mouse, Client
 global seeds := ["Carrot","Strawberry","Blueberry","OrangeTulip","Tomato","Corn","Daffodil","Watermelon","Pumpkin","Apple","Bamboo","Coconut","Cactus","Dragon","Mango","Grape","Mushroom","Pepper","Cacao","Beanstalk","EmberLily","SugarApple","BurningBud","GiantPinecone"]
-global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","MediumToy","MediumTreat","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","CleaningSpray","FavoriteTool","HarvestTool","FriendshipPot","LevelupLollipop"]
+global gears := ["WateringCan","Trowel","RecallWrench","BasicSprinkler","AdvancedSprinkler","GodlySprinkler","MagnifyingGlass","TanningMirror","MasterSprinkler","FavoriteTool","HarvestTool","FriendshipPot"]
 global eggs := ["Common","CommonSummerEgg","RareSummerEgg","Mythical","Paradise","Bug"]
 global configPath := A_ScriptDir "\lib\config.ini"
 global ssPath := A_ScriptDir . "\lib\ss.jpg"
+global ocrOutPath := A_ScriptDir . "\lib\out"
 global loops_ran := 0
 global startTime := getUnixTime()
 global started := 0
@@ -397,6 +398,31 @@ getUnixTime() {
     EnvSub, now, 1970, seconds
     return now
 }
+global tessPath := "C:\Program Files\Tesseract-OCR\tesseract.exe"
+downloadTesseract(){
+	If !FileExist(tessPath){
+		Gui +OwnDialogs
+		MsgBox,48,Tesseract Not Found,This macro requires Tesseract OCR to be installed. The script will now download and install it.
+		InstallerPath:=A_Temp "\tesseract-installer.exe"
+		UrlDownloadToFile,https://github.com/tesseract-ocr/tesseract/releases/download/5.5.0/tesseract-ocr-w64-setup-5.5.0.20241111.exe,%InstallerPath%
+		If !FileExist(InstallerPath){
+			Msgbox,16,% "Error", % "Failed to download the Tesseract installer. Please check your internet connection and try again."
+		}
+		RunWait,%InstallerPath% /SILENT,,Hide
+		If FileExist("C:\Program Files\Tesseract-OCR\tesseract.exe")
+			MsgBox,64,Installation Complete,Tesseract OCR has been successfully installed!
+		Else{
+			Msgbox,64,% "Installation Failed", % "Tesseract OCR installation failed. Please install it manually at https://github.com/tesseract-ocr/tesseract"
+		}
+	}
+}
+ocr(x,y,w,h) {
+    pb := Gdip_BitmapFromScreen(x . "|" . y . "|" . w "|" . h)
+    Gdip_SaveBitmapToFile(pb, ssPath)
+    RunWait, %tessPath% %ssPath% %ocrOutPath%,, Hide
+    FileRead, out, % ocrOutPath . ".txt"
+    return out
+}
 sTut() {
     global
     gui, tut:new
@@ -488,6 +514,7 @@ if(!read("TutEnable")) {
 if(read("UpdateEnable")) {
     checkForUpdates()
 }
+downloadTesseract()
 read(key) {
     IniRead, val, % configPath, Main, % key, 0
     return val
@@ -656,11 +683,10 @@ mainLoop() {
         }
     }
 }
-checkdisconnect() { ; 0x393b3d, 0xFFFFFF
+checkdisconnect() {
     WinGetPos, x,y,w,h, Roblox
-    PixelSearch, x1,, % w*0.3, % h*0.3, % w*0.7, % h*0.7, 0x393b3d, 0, Fast RGB
-    PixelSearch, x2,, % w*0.3, % h*0.3, % w*0.7, % h*0.7, 0xffffff, 0, Fast RGB
-    if (x1 && x2) {
+    text := ocr(round(x + (w*0.3)), round(y + (h*0.3)), round(w*0.4), round(h*0.4))
+    if (InStr(text, "Disconnected")) {
         return True
     }
     return False
